@@ -61,6 +61,8 @@ const jsonUrls = {
   future: 'https://www.jma.go.jp/bosai/jmatile/data/nowc/targetTimes_N2.json'
 }
 
+const TRANSITION_MSEC = 400;
+
 export default {
   name: 'Map',
   data () {
@@ -68,7 +70,8 @@ export default {
       map: undefined,
       drawer: null,
       sliderIdx: 0,
-      sliderValues: []
+      sliderValues: [],
+      count: 0, // for layer management
     }
   },
   watch: {
@@ -76,14 +79,10 @@ export default {
       const selected = this.sliderValues[idx]
       if (!selected) return
       const radarTileUrl = `https://www.jma.go.jp/bosai/jmatile/data/nowc/${selected.basetime}/none/${selected.validtime}/surf/hrpns/{z}/{x}/{y}.png`
-      // Update layer: remove and add again
-      if (typeof this.map.getLayer('radar-tiles') !== 'undefined') {
-        this.map.removeLayer('radar-tiles')
-      }
-      if (typeof this.map.getSource('radar') !== 'undefined') {
-        this.map.removeSource('radar')
-      }
-      this.addRadarLayer(radarTileUrl)
+      // Update layer: add and delayed removing for smooth transition
+      this.count += 1
+      this.addRadarLayer(radarTileUrl, this.count)
+      this.maybeDelayedRemoveRadarLayer(this.count - 1)
     }
   },
   methods: {
@@ -101,9 +100,19 @@ export default {
       const dataList = results.flat().reverse()
       return { currentIndex, dataList }
     },
-    addRadarLayer (url) {
+    maybeDelayedRemoveRadarLayer (suffix) {
+      setTimeout(() => {
+        if (typeof this.map.getLayer(`radar-tiles-${suffix}`) !== 'undefined') {
+          this.map.removeLayer(`radar-tiles-${suffix}`)
+        }
+        if (typeof this.map.getSource(`radar-${suffix}`) !== 'undefined') {
+          this.map.removeSource(`radar-${suffix}`)
+        }
+      }, TRANSITION_MSEC);
+    },
+    addRadarLayer (url, suffix) {
       // By setting maxzoom to source (not layer), ovezooming seems to be working
-      this.map.addSource('radar', {
+      this.map.addSource(`radar-${suffix}`, {
         type: 'raster',
         tiles: [url],
         tileSize: 256,
@@ -112,9 +121,9 @@ export default {
         attribution: 'Japan Meteorological Agency'
       })
       this.map.addLayer({
-        id: 'radar-tiles',
+        id: `radar-tiles-${suffix}`,
         type: 'raster',
-        source: 'radar',
+        source: `radar-${suffix}`,
         paint: {
           'raster-opacity': 0.6
         }
@@ -170,7 +179,7 @@ export default {
 <style scoped>
 #mapbox, #map-container {
   width: 100%;
-  height: 100%;
+  height: 100vh;
 }
 .front {
   z-index: 999;
