@@ -1,6 +1,47 @@
 <template>
   <div>
     <div id="mapbox" />
+    <v-btn
+      id="setting-button"
+      class="front"
+      @click.stop="drawer = !drawer"
+      color="blue-grey darken-2"
+      elevation="6"
+      fab
+    >
+      <v-icon color="white">mdi-cog</v-icon>
+    </v-btn>
+    <div
+      id="slider-container"
+      class="front"
+    >
+      <v-slider
+        class="front"
+        v-model="sliderIdx"
+        step="1"
+        :min="0"
+        :max="sliderValues.length - 1"
+        thumb-label="always"
+        :thumb-size="40"
+        ticks
+      >
+        <template v-slot:thumb-label="{ value }">
+          {{ sliderValues.length > 0 ? formatDate(sliderValues[value].validtime) : "" }}
+        </template>
+      </v-slider>
+    </div>
+    <v-navigation-drawer
+      class="front"
+      v-model="drawer"
+      absolute
+      temporary
+    >
+      <v-list dense>
+        <v-list-item>
+          TODO
+        </v-list-item>
+      </v-list>
+    </v-navigation-drawer>
   </div>
 </template>
 
@@ -24,18 +65,60 @@ export default {
   name: 'Map',
   data () {
     return {
-      map: undefined
+      map: undefined,
+      drawer: null,
+      sliderIdx: 0,
+      sliderValues: []
+    }
+  },
+  watch: {
+    sliderIdx (idx) {
+      const selected = this.sliderValues[idx]
+      if (!selected) return
+      const radarTileUrl = `https://www.jma.go.jp/bosai/jmatile/data/nowc/${selected.basetime}/none/${selected.validtime}/surf/hrpns/{z}/{x}/{y}.png`
+      // Update layer: remove and add again
+      if (typeof this.map.getLayer('radar-tiles') !== 'undefined') {
+        this.map.removeLayer('radar-tiles')
+      }
+      if (typeof this.map.getSource('radar') !== 'undefined') {
+        this.map.removeSource('radar')
+      }
+      this.addRadarLayer(radarTileUrl)
     }
   },
   methods: {
+    formatDate (timeStr) {
+      const date = `${timeStr.slice(0, 4)}-${timeStr.slice(4, 6)}-${timeStr.slice(6, 8)}`
+      const time = `${timeStr.slice(8, 10)}:${timeStr.slice(10, 12)}:${timeStr.slice(12, 14)}`
+      return (new Date(`${date}T${time}Z`)).toLocaleTimeString().split(':').slice(0, 2).join(':')
+    },
     async fetchDataList () {
       const results = await Promise.all([
         fetch(jsonUrls.future).then(resp => resp.json()),
         fetch(jsonUrls.past).then(resp => resp.json())
       ])
-      const dataList = results.flat()
-      const currentIndex = results[0].length // Index of latest (first element of past)
+      const currentIndex = results[1].length - 1 // Index of latest (first element of past) in reversed
+      const dataList = results.flat().reverse()
       return { currentIndex, dataList }
+    },
+    addRadarLayer (url) {
+      // By setting maxzoom to source (not layer), ovezooming seems to be working
+      this.map.addSource('radar', {
+        type: 'raster',
+        tiles: [url],
+        tileSize: 256,
+        minzoom: 4,
+        maxzoom: 10, // Seems to be the max
+        attribution: 'Japan Meteorological Agency'
+      })
+      this.map.addLayer({
+        id: 'radar-tiles',
+        type: 'raster',
+        source: 'radar',
+        paint: {
+          'raster-opacity': 0.6
+        }
+      })
     },
     async render (map) {
       // Add terrain layer
@@ -67,27 +150,10 @@ export default {
         source: 'base'
       })
 
-      // Add radar layer
+      // Set slider position (radar layer will be added)
       const { currentIndex, dataList } = await this.fetchDataList()
-      const selected = dataList[currentIndex] // Latest data
-      const radarTileUrl = `https://www.jma.go.jp/bosai/jmatile/data/nowc/${selected.basetime}/none/${selected.validtime}/surf/hrpns/{z}/{x}/{y}.png`
-      // By setting maxzoom to source (not layer), ovezooming seems to be working
-      map.addSource('radar', {
-        type: 'raster',
-        tiles: [radarTileUrl],
-        tileSize: 256,
-        minzoom: 4,
-        maxzoom: 10, // Seems to be the max
-        attribution: 'Japan Meteorological Agency'
-      })
-      map.addLayer({
-        id: 'nowcast-tiles',
-        type: 'raster',
-        source: 'radar',
-        paint: {
-          'raster-opacity': 0.6
-        }
-      })
+      this.sliderValues = dataList
+      this.sliderIdx = currentIndex
     }
   },
   mounted () {
@@ -104,5 +170,22 @@ export default {
 #mapbox {
   width: 100vw;
   height: 100vh;
+}
+.front {
+  z-index: 999;
+}
+#setting-button {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+}
+#slider-container {
+  position: absolute;
+  bottom: 80px;
+  left: 10vw;
+  width: 80vw;
+  height: 32px;
+  padding: 0px 20px;
+  background-color: rgba(255, 255, 255, 0.8);
 }
 </style>
