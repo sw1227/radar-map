@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div id="map-container">
     <div id="mapbox" />
     <v-btn
       id="setting-button"
@@ -159,6 +159,7 @@ export default {
   mounted () {
     const map = new mapboxgl.Map(options)
     map.on('load', () => {
+      map.resize()
       this.render(map)
     })
     this.map = map
@@ -167,9 +168,9 @@ export default {
 </script>
 
 <style scoped>
-#mapbox {
-  width: 100vw;
-  height: 100vh;
+#mapbox, #map-container {
+  width: 100%;
+  height: 100%;
 }
 .front {
   z-index: 999;
@@ -187,5 +188,6 @@ export default {
   height: 32px;
   padding: 0px 20px;
   background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 16px;
 }
 </style>
