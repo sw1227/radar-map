@@ -11,6 +11,28 @@
     >
       <v-icon color="white">mdi-cog</v-icon>
     </v-btn>
+    <v-btn
+      id="left-button"
+      class="front"
+      @click.stop="onLeftClick"
+      color="grey lighten-5"
+      small
+      elevation="2"
+      fab
+    >
+      <v-icon>mdi-arrow-left</v-icon>
+    </v-btn>
+    <v-btn
+      id="right-button"
+      class="front"
+      @click.stop="onRightClick"
+      color="grey lighten-5"
+      small
+      elevation="2"
+      fab
+    >
+      <v-icon>mdi-arrow-right</v-icon>
+    </v-btn>
     <div
       id="slider-container"
       class="front"
@@ -61,7 +83,7 @@ const jsonUrls = {
   future: 'https://www.jma.go.jp/bosai/jmatile/data/nowc/targetTimes_N2.json'
 }
 
-const TRANSITION_MSEC = 400;
+const TRANSITION_MSEC = 400
 
 export default {
   name: 'Map',
@@ -71,7 +93,7 @@ export default {
       drawer: null,
       sliderIdx: 0,
       sliderValues: [],
-      count: 0, // for layer management
+      count: 0 // for layer management
     }
   },
   watch: {
@@ -91,6 +113,16 @@ export default {
       const time = `${timeStr.slice(8, 10)}:${timeStr.slice(10, 12)}:${timeStr.slice(12, 14)}`
       return (new Date(`${date}T${time}Z`)).toLocaleTimeString().split(':').slice(0, 2).join(':')
     },
+    onLeftClick () {
+      if (this.sliderIdx > 0) {
+        this.sliderIdx -= 1
+      }
+    },
+    onRightClick () {
+      if (this.sliderIdx < this.sliderValues.length) {
+        this.sliderIdx += 1
+      }
+    },
     async fetchDataList () {
       const results = await Promise.all([
         fetch(jsonUrls.future).then(resp => resp.json()),
@@ -108,7 +140,7 @@ export default {
         if (typeof this.map.getSource(`radar-${suffix}`) !== 'undefined') {
           this.map.removeSource(`radar-${suffix}`)
         }
-      }, TRANSITION_MSEC);
+      }, TRANSITION_MSEC)
     },
     addRadarLayer (url, suffix) {
       // By setting maxzoom to source (not layer), ovezooming seems to be working
@@ -188,6 +220,16 @@ export default {
   position: absolute;
   bottom: 10px;
   left: 10px;
+}
+#left-button {
+  position: absolute;
+  bottom: 30px;
+  left: calc(50% - 50px);
+}
+#right-button {
+  position: absolute;
+  bottom: 30px;
+  left: calc(50% + 10px);
 }
 #slider-container {
   position: absolute;
