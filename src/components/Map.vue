@@ -36,6 +36,23 @@ export default {
         exaggeration: 1.5
       })
 
+      // Add base layer
+      map.addSource('base', {
+        type: 'raster',
+        tiles: [
+          'https://cyberjapandata.gsi.go.jp/xyz/hillshademap/{z}/{x}/{y}.png'
+        ],
+        tileSize: 256,
+        minzoom: 4,
+        maxzoom: 16,
+        attribution: '地理院タイル'
+      })
+      map.addLayer({
+        id: 'base-tiles',
+        type: 'raster',
+        source: 'base'
+      })
+
       // Add radar layer
       // TODO: fixed URL
       const nowcastUrl = 'https://www.jma.go.jp/bosai/jmatile/data/nowc/20210619045500/none/20210619045500/surf/hrpns/{z}/{x}/{y}.png'
