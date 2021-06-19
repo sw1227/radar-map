@@ -1,7 +1,9 @@
 <template>
-  <div id="app">
-    <Map/>
-  </div>
+  <v-app>
+    <v-main>
+      <Map/>
+    </v-main>
+  </v-app>
 </template>
 
 <script>
