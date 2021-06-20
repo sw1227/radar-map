@@ -264,21 +264,25 @@ export default {
   position: absolute;
   bottom: 30px;
   left: 10px;
+  position: fixed;
 }
 #gps-button {
   position: absolute;
   bottom: 40px;
   right: 10px;
+  position: fixed;
 }
 #left-button {
   position: absolute;
   bottom: 50px;
   left: calc(50% - 50px);
+  position: fixed;
 }
 #right-button {
   position: absolute;
   bottom: 50px;
   left: calc(50% + 10px);
+  position: fixed;
 }
 #slider-container {
   position: absolute;
@@ -289,5 +293,6 @@ export default {
   padding: 0px 20px;
   background-color: rgba(255, 255, 255, 0.8);
   border-radius: 16px;
+  position: fixed;
 }
 </style>
