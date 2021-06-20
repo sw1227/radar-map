@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/3.6.3/workbox-sw.js");
 
 importScripts(
-  "/radar-map/precache-manifest.6f3d036a0c90d9409f9c2ec3ff5ae04d.js"
+  "/radar-map/precache-manifest.49a8f8055790f45a20f57138cf4bd55e.js"
 );
 
 workbox.core.setCacheNameDetails({prefix: "radar-map"});
