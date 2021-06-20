@@ -58,6 +58,8 @@
         :max="sliderValues.length - 1"
         thumb-label="always"
         :thumb-size="40"
+        :color="sliderIdx > currentIdx ? 'lime darken-1' : 'indigo darken-1'"
+        track-color="gray"
         ticks
       >
         <template v-slot:thumb-label="{ value }">
@@ -105,6 +107,7 @@ export default {
       map: undefined,
       drawer: null,
       sliderIdx: 0,
+      currentIdx: 0, // sliderIdx of current time
       sliderValues: [],
       gpsMarker: null,
       location: {},
@@ -238,6 +241,7 @@ export default {
       const { currentIndex, dataList } = await this.fetchDataList()
       this.sliderValues = dataList
       this.sliderIdx = currentIndex
+      this.currentIdx = currentIndex
     }
   },
   mounted () {
