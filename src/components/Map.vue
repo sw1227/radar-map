@@ -241,6 +241,7 @@ export default {
     }
   },
   mounted () {
+    window.scrollTo(0, document.body.scrollHeight) // TEMP: for iPhone
     const map = new mapboxgl.Map(options)
     map.on('load', () => {
       map.resize()
