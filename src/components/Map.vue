@@ -12,6 +12,19 @@
       <v-icon color="white">mdi-cog</v-icon>
     </v-btn>
     <v-btn
+      id="gps-button"
+      class="front"
+      @click.stop="findLocation"
+      :loading="isGettingLocation"
+      :disabled="isGettingLocation"
+      color="grey lighten-5"
+      small
+      elevation="6"
+      fab
+    >
+      <v-icon>mdi-crosshairs-gps</v-icon>
+    </v-btn>
+    <v-btn
       id="left-button"
       class="front"
       @click.stop="onLeftClick"
@@ -93,6 +106,9 @@ export default {
       drawer: null,
       sliderIdx: 0,
       sliderValues: [],
+      gpsMarker: null,
+      location: {},
+      isGettingLocation: false,
       count: 0 // for layer management
     }
   },
@@ -105,6 +121,12 @@ export default {
       this.count += 1
       this.addRadarLayer(radarTileUrl, this.count)
       this.maybeDelayedRemoveRadarLayer(this.count - 1)
+    },
+    location (loc) {
+      if (this.gpsMarker) this.gpsMarker.remove()
+      this.gpsMarker = new mapboxgl.Marker()
+        .setLngLat([loc.lng, loc.lat])
+        .addTo(this.map)
     }
   },
   methods: {
@@ -121,6 +143,27 @@ export default {
     onRightClick () {
       if (this.sliderIdx < this.sliderValues.length) {
         this.sliderIdx += 1
+      }
+    },
+    findLocation () {
+      if (navigator.geolocation) {
+        this.isGettingLocation = true
+        navigator.geolocation.getCurrentPosition(
+          (pos) => { // onSuccess
+            this.isGettingLocation = false
+            this.location = {
+              lat: pos.coords.latitude,
+              lng: pos.coords.longitude
+            }
+          },
+          (err) => { // onError
+            this.isGettingLocation = false
+            alert(`現在地の取得に失敗しました。\n${err}`)
+          },
+          { timeout: 10000 }
+        )
+      } else {
+        alert('お使いのブラウザでは現在地を取得できません')
       }
     },
     async fetchDataList () {
@@ -218,22 +261,27 @@ export default {
 }
 #setting-button {
   position: absolute;
-  bottom: 10px;
+  bottom: 30px;
   left: 10px;
+}
+#gps-button {
+  position: absolute;
+  bottom: 40px;
+  right: 10px;
 }
 #left-button {
   position: absolute;
-  bottom: 30px;
+  bottom: 50px;
   left: calc(50% - 50px);
 }
 #right-button {
   position: absolute;
-  bottom: 30px;
+  bottom: 50px;
   left: calc(50% + 10px);
 }
 #slider-container {
   position: absolute;
-  bottom: 80px;
+  bottom: 100px;
   left: 10vw;
   width: 80vw;
   height: 32px;
