@@ -269,24 +269,28 @@ export default {
   bottom: 30px;
   left: 10px;
   position: fixed;
+  touch-action: none;
 }
 #gps-button {
   position: absolute;
   bottom: 40px;
   right: 10px;
   position: fixed;
+  touch-action: none;
 }
 #left-button {
   position: absolute;
   bottom: 50px;
   left: calc(50% - 50px);
   position: fixed;
+  touch-action: none;
 }
 #right-button {
   position: absolute;
   bottom: 50px;
   left: calc(50% + 10px);
   position: fixed;
+  touch-action: none;
 }
 #slider-container {
   position: absolute;
@@ -298,5 +302,6 @@ export default {
   background-color: rgba(255, 255, 255, 0.8);
   border-radius: 16px;
   position: fixed;
+  touch-action: pan-x;
 }
 </style>
