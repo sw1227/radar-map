@@ -4,7 +4,7 @@
     <v-btn
       id="setting-button"
       class="front"
-      @click.stop="drawer = !drawer"
+      @click.stop="dialog = !dialog"
       color="blue-grey darken-2"
       elevation="6"
       fab
@@ -80,11 +80,9 @@
         </template>
       </v-slider>
     </div>
-    <v-navigation-drawer
-      class="front"
-      v-model="drawer"
-      absolute
-      temporary
+    <v-dialog
+      v-model="dialog"
+      width="500"
     >
       <v-list dense>
         <v-list-item id="basemap-select">
@@ -96,7 +94,7 @@
           />
         </v-list-item>
       </v-list>
-    </v-navigation-drawer>
+    </v-dialog>
   </div>
 </template>
 
@@ -109,7 +107,7 @@ export default {
   data () {
     return {
       map: undefined,
-      drawer: null,
+      dialog: false,
       sliderIdx: 0,
       currentIdx: 0, // sliderIdx of current time
       sliderValues: [],
@@ -305,7 +303,7 @@ export default {
   touch-action: none;
 }
 #basemap-select {
-  margin-top: 20px;
+  margin-top: 30px;
 }
 #gps-button {
   position: absolute;
