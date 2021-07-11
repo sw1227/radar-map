@@ -87,8 +87,13 @@
       temporary
     >
       <v-list dense>
-        <v-list-item>
-          TODO
+        <v-list-item id="basemap-select">
+          <v-select
+            :items="tileNames"
+            v-model="selectedTile"
+            label="ベースマップ"
+            outlined
+          />
         </v-list-item>
       </v-list>
     </v-navigation-drawer>
@@ -97,21 +102,7 @@
 
 <script>
 import mapboxgl from 'mapbox-gl'
-
-const options = {
-  accessToken: 'pk.eyJ1Ijoic3cxMjI3IiwiYSI6ImNrbngyazRhcjBtY3Iyd3RnODhjbDhscWsifQ.6Uc-Lboqa0WhZbnnFJWFSA', // only for public usage (URL restricted)
-  container: 'mapbox',
-  style: 'mapbox://styles/mapbox/light-v10',
-  center: [139.7, 35.7],
-  zoom: 8
-}
-
-const jsonUrls = {
-  past: 'https://www.jma.go.jp/bosai/jmatile/data/nowc/targetTimes_N1.json',
-  future: 'https://www.jma.go.jp/bosai/jmatile/data/nowc/targetTimes_N2.json'
-}
-
-const TRANSITION_MSEC = 400
+import { options, jsonUrls, TRANSITION_MSEC, tileSets } from '../util/constants'
 
 export default {
   name: 'Map',
@@ -126,7 +117,16 @@ export default {
       location: {},
       isGettingLocation: false,
       isFetchingData: true,
-      count: 0 // for layer management
+      count: 0, // for layer management
+      selectedTile: tileSets[0].name
+    }
+  },
+  computed: {
+    tileNames () {
+      return tileSets.map(tile => tile.name)
+    },
+    selectedTileset () {
+      return tileSets.find(tile => tile.name === this.selectedTile)
     }
   },
   watch: {
@@ -144,6 +144,22 @@ export default {
       this.gpsMarker = new mapboxgl.Marker()
         .setLngLat([loc.lng, loc.lat])
         .addTo(this.map)
+    },
+    selectedTile () {
+      // Update tile source and replace layer
+      if (this.map.getSource('base')) {
+        this.map.getSource('base').tiles = [ this.selectedTileset.url ]
+      }
+      if (this.map.getLayer('base-tiles')) {
+        this.map.removeLayer('base-tiles')
+      }
+      this.map.addLayer({
+        id: 'base-tiles',
+        type: 'raster',
+        source: 'base'
+      })
+      // Move radar layer to the top
+      this.map.moveLayer(`radar-tiles-${this.count}`)
     }
   },
   methods: {
@@ -221,31 +237,31 @@ export default {
         }
       })
     },
-    setLayer (map) {
+    setLayer () {
       // Add terrain layer
-      map.addSource('mapbox-dem', {
+      this.map.addSource('mapbox-dem', {
         type: 'raster-dem',
         url: 'mapbox://mapbox.mapbox-terrain-dem-v1',
         tileSize: 512,
         maxzoom: 13
       })
-      map.setTerrain({
+      this.map.setTerrain({
         source: 'mapbox-dem',
         exaggeration: 1.5
       })
 
       // Add base layer
-      map.addSource('base', {
+      this.map.addSource('base', {
         type: 'raster',
         tiles: [
-          'https://cyberjapandata.gsi.go.jp/xyz/hillshademap/{z}/{x}/{y}.png'
+          this.selectedTileset.url
         ],
         tileSize: 256,
         minzoom: 4,
         maxzoom: 16,
-        attribution: '地理院タイル'
+        attribution: '地理院タイル(色別標高図の海域部は海上保安庁海洋情報部の資料を使用して作成)'
       })
-      map.addLayer({
+      this.map.addLayer({
         id: 'base-tiles',
         type: 'raster',
         source: 'base'
@@ -263,13 +279,12 @@ export default {
   },
   mounted () {
     window.scrollTo(0, document.body.scrollHeight) // TEMP: for iPhone
-    const map = new mapboxgl.Map(options)
-    map.on('load', () => {
-      map.resize()
-      this.setLayer(map)
+    this.map = new mapboxgl.Map(options)
+    this.map.on('load', () => {
+      this.map.resize()
+      this.setLayer()
       this.refreshTileData()
     })
-    this.map = map
   }
 }
 </script>
@@ -288,6 +303,9 @@ export default {
   left: 10px;
   position: fixed;
   touch-action: none;
+}
+#basemap-select {
+  margin-top: 20px;
 }
 #gps-button {
   position: absolute;
