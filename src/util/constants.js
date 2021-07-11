@@ -47,15 +47,15 @@ export const tileSets = [
     url: 'https://cyberjapandata.gsi.go.jp/xyz/anaglyphmap_color/{z}/{x}/{y}.png'
   },
   {
-    name: '数値地図25000（土地条件）',
+    name: '[一部地域のみ] 数値地図25000（土地条件）',
     url: 'https://cyberjapandata.gsi.go.jp/xyz/lcm25k_2012/{z}/{x}/{y}.png'
   },
   {
-    name: '治水地形分類図 更新版（2007～2020年）',
+    name: '[一部地域のみ] 治水地形分類図 更新版（2007～2020年）',
     url: 'https://cyberjapandata.gsi.go.jp/xyz/lcmfc2/{z}/{x}/{y}.png'
   },
   {
-    name: '土地条件図（初期整備版）',
+    name: '[一部地域のみ] 土地条件図（初期整備版）',
     url: 'https://cyberjapandata.gsi.go.jp/xyz/lcm25k/{z}/{x}/{y}.png'
   }
 ]
