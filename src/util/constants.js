@@ -1,7 +1,8 @@
 export const options = {
   accessToken: 'pk.eyJ1Ijoic3cxMjI3IiwiYSI6ImNrbngyazRhcjBtY3Iyd3RnODhjbDhscWsifQ.6Uc-Lboqa0WhZbnnFJWFSA', // only for public usage (URL restricted)
   container: 'mapbox',
-  style: 'mapbox://styles/mapbox/light-v10',
+  style: 'mapbox://styles/sw1227/ckqz6zeor3wqu17lu6ms6h7ny',
+  localIdeographFontFamily: ['sans-serif'],
   center: [139.7, 35.7],
   zoom: 8
 }
