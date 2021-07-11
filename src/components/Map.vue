@@ -25,6 +25,19 @@
       <v-icon>mdi-crosshairs-gps</v-icon>
     </v-btn>
     <v-btn
+      id="refresh-button"
+      class="front"
+      @click.stop="refreshTileData"
+      :loading="isFetchingData"
+      :disabled="isFetchingData"
+      color="grey lighten-5"
+      small
+      elevation="6"
+      fab
+    >
+      <v-icon>mdi-refresh</v-icon>
+    </v-btn>
+    <v-btn
       id="left-button"
       class="front"
       @click.stop="onLeftClick"
@@ -112,6 +125,7 @@ export default {
       gpsMarker: null,
       location: {},
       isGettingLocation: false,
+      isFetchingData: true,
       count: 0 // for layer management
     }
   },
@@ -207,7 +221,7 @@ export default {
         }
       })
     },
-    async render (map) {
+    setLayer (map) {
       // Add terrain layer
       map.addSource('mapbox-dem', {
         type: 'raster-dem',
@@ -236,12 +250,15 @@ export default {
         type: 'raster',
         source: 'base'
       })
-
+    },
+    async refreshTileData () {
+      this.isFetchingData = true
       // Set slider position (radar layer will be added)
       const { currentIndex, dataList } = await this.fetchDataList()
       this.sliderValues = dataList
       this.sliderIdx = currentIndex
       this.currentIdx = currentIndex
+      this.isFetchingData = false
     }
   },
   mounted () {
@@ -249,7 +266,8 @@ export default {
     const map = new mapboxgl.Map(options)
     map.on('load', () => {
       map.resize()
-      this.render(map)
+      this.setLayer(map)
+      this.refreshTileData()
     })
     this.map = map
   }
@@ -275,6 +293,13 @@ export default {
   position: absolute;
   bottom: 40px;
   right: 10px;
+  position: fixed;
+  touch-action: none;
+}
+#refresh-button {
+  position: absolute;
+  bottom: 40px;
+  right: 60px;
   position: fixed;
   touch-action: none;
 }
