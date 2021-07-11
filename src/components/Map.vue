@@ -83,6 +83,7 @@
     <v-dialog
       v-model="dialog"
       width="500"
+      class="front2"
     >
       <v-list dense>
         <v-list-item id="basemap-select">
@@ -293,7 +294,10 @@ export default {
   height: 100vh;
 }
 .front {
-  z-index: 999;
+  z-index: 100;
+}
+.front2 {
+  z-index: 101;
 }
 #setting-button {
   position: absolute;
